@@ -1,0 +1,63 @@
+services:
+  mlflow:
+    build: .
+    image: demand-forecast-mlops:local
+    command: >
+      .venv/bin/mlflow server
+      --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --artifacts-destination /mlflow/artifacts
+      --serve-artifacts
+    environment:
+      MLFLOW_SERVER_ALLOWED_HOSTS: "*"
+      MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: "*"
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    healthcheck:
+      test: ["CMD", ".venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10      
+  api:
+    image: demand-forecast-mlops:local
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    ports:
+      - "8000:8000"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+  trainer:
+    image: demand-forecast-mlops:local
+    profiles: ["jobs"]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      GIT_PYTHON_REFRESH: "quiet"
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    command: [".venv/bin/python", "-m", "demand_forecast.train"]
+
+  pipeline:
+    image: demand-forecast-mlops:local
+    profiles: ["jobs"]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      DO_NOT_TRACK: "1"
+      GIT_PYTHON_REFRESH: "quiet"
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    command: [".venv/bin/python", "-m", "demand_forecast.pipeline", "2012-10"]
+
+volumes:
+  mlflow-data:

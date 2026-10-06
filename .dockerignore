@@ -1,0 +1,12 @@
+.venv
+__pycache__
+*.pyc
+*.egg-info
+.git
+.github
+.prefect
+mlruns
+mlflow.db
+reports
+data
+tests
