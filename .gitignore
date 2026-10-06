@@ -6,3 +6,4 @@ data/
 mlruns/
 mlflow.db
 .prefect/
+reports/

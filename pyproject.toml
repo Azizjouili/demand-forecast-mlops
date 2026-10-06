@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "evidently>=0.7.23",
     "fastapi>=0.142.2",
     "lightgbm>=4.7.0",
     "mlflow>=3.16.1",

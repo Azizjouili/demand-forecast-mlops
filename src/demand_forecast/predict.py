@@ -25,3 +25,7 @@ def predict_one(record: dict) -> float:
     model = _load()
     X = pd.DataFrame([record])[FEATURES]
     return float(model.predict(X)[0])
+
+def predict_frame(df: pd.DataFrame):
+    model = _load()
+    return model.predict(df[FEATURES])
