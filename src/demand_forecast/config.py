@@ -1,5 +1,6 @@
-"""Central config: paths, dataset URL, and feature definitions."""
+"""Central config: paths, dataset URL, feature definitions, and MLflow settings."""
 
+import os
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -17,3 +18,10 @@ DROP_COLS = ["instant", "dteday", "casual", "registered"]
 CATEGORICAL = ["season", "yr", "mnth", "hr", "holiday", "weekday", "workingday", "weathersit"]
 NUMERIC = ["temp", "atemp", "hum", "windspeed"]
 FEATURES = CATEGORICAL + NUMERIC
+
+# MLflow: SQLite backend enables the model registry locally.
+MLFLOW_TRACKING_URI = os.environ.get(
+    "MLFLOW_TRACKING_URI", f"sqlite:///{(PROJECT_ROOT / 'mlflow.db').as_posix()}"
+)
+MODEL_NAME = "demand-forecaster"
+PRODUCTION_ALIAS = "production"
