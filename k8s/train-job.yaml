@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train
+  namespace: demand
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: train
+          image: demand-forecast-mlops:local
+          imagePullPolicy: Never
+          command:
+            - sh
+            - -c
+            - >
+              .venv/bin/python -m demand_forecast.data.ingest &&
+              .venv/bin/python -m demand_forecast.data.simulate &&
+              .venv/bin/python -m demand_forecast.train
+          env:
+            - name: MLFLOW_TRACKING_URI
+              value: "http://mlflow:5000"
+            - name: GIT_PYTHON_REFRESH
+              value: "quiet"
