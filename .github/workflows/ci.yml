@@ -16,7 +16,7 @@ jobs:
       - name: System deps (LightGBM needs libgomp)
         run: sudo apt-get update && sudo apt-get install -y libgomp1
       - name: Sync dependencies
-        run: uv sync --extra dev
+        run: uv sync
       - name: Lint
         run: uv run ruff check .
       - name: Test
